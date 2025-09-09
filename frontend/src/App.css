@@ -1,0 +1,239 @@
+.app {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow-x: hidden;
+}
+
+.app::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.app-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    padding: 40px 0 20px;
+    text-align: center;
+}
+
+.header-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.app-title {
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 12px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    letter-spacing: -1px;
+}
+
+.app-subtitle {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.app-main {
+    flex: 1;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.search-section {
+    margin-bottom: 40px;
+}
+
+.content-section {
+    animation: fadeIn 0.6s ease-in;
+}
+
+.error-message {
+    background: rgba(239, 68, 68, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.error-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.error-icon {
+    font-size: 24px;
+}
+
+.error-content p {
+    color: #ef4444;
+    font-weight: 500;
+    margin: 0;
+}
+
+.retry-btn {
+    background: #ef4444;
+    margin-top: 8px;
+}
+
+.retry-btn:hover {
+    background: #dc2626;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.loading p {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+}
+
+.no-profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px;
+}
+
+.no-profile-content {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+}
+
+.no-profile-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.no-profile-content p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.app-footer {
+    padding: 40px 20px 20px;
+    text-align: center;
+    margin-top: auto;
+}
+
+.app-footer p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-title {
+        font-size: 36px;
+    }
+
+    .app-subtitle {
+        font-size: 18px;
+    }
+
+    .app-header {
+        padding: 32px 0 16px;
+    }
+
+    .app-main {
+        padding: 16px;
+    }
+
+    .error-message {
+        padding: 20px;
+    }
+
+    .loading {
+        padding: 60px 20px;
+    }
+
+    .no-profile-content {
+        padding: 40px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-title {
+        font-size: 28px;
+    }
+
+    .app-subtitle {
+        font-size: 16px;
+    }
+
+    .app-header {
+        padding: 24px 0 12px;
+    }
+
+    .app-main {
+        padding: 12px;
+    }
+
+    .header-content {
+        padding: 0 16px;
+    }
+
+    .error-message {
+        padding: 16px;
+    }
+
+    .loading {
+        padding: 48px 16px;
+    }
+
+    .no-profile-content {
+        padding: 32px 20px;
+    }
+
+    .no-profile-content h3 {
+        font-size: 20px;
+    }
+}

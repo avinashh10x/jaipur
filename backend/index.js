@@ -1,0 +1,67 @@
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+require('dotenv').config();
+
+const connectDB = require('./config/database');
+const profileRoutes = require('./routes/profileRoutes');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Connect to MongoDB
+connectDB();
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+});
+
+// Routes
+app.use('/', profileRoutes);
+
+// Default route
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Profile Manager API',
+        version: '1.0.0',
+        endpoints: {
+            'POST /profile': 'Create or update profile',
+            'GET /profile': 'Get profile',
+            'GET /projects?skill=<skill>': 'Get projects by skill',
+            'GET /skills/top': 'Get top skills',
+            'GET /search?q=<query>': 'Search profiles and projects',
+            'GET /health': 'Health check'
+        }
+    });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({
+        message: 'Something went wrong!',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+});
+
+// Handle 404
+app.use((req, res) => {
+    res.status(404).json({
+        message: 'Route not found'
+    });
+});
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+});
+
+module.exports = app;
