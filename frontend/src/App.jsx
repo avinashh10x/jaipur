@@ -4,6 +4,7 @@ import ProfileCard from './components/ProfileCard';
 import SearchResults from './components/SearchResults';
 import TopSkills from './components/TopSkills';
 import ProjectsBySkill from './components/ProjectsBySkill';
+import EditProfile from './components/EditProfile';
 import { profileAPI } from './services/api';
 import './App.css';
 
@@ -15,7 +16,8 @@ function App() {
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState(null);
     const [selectedSkill, setSelectedSkill] = useState(null);
-    const [viewMode, setViewMode] = useState('home'); // 'home', 'search', 'skill-projects'
+    const [viewMode, setViewMode] = useState('home'); // 'home', 'search', 'skill-projects', 'edit'
+    const [isEditMode, setIsEditMode] = useState(false);
 
     // Load profile data on component mount
     useEffect(() => {
@@ -73,6 +75,39 @@ function App() {
         setSelectedSkill(null);
         setSearchResults(null);
         setSearchQuery('');
+        setIsEditMode(false);
+        setError(null);
+    };
+
+    const handleEditProfile = () => {
+        setIsEditMode(true);
+        setViewMode('edit');
+    };
+
+    const handleSaveProfile = async (updatedProfile) => {
+        try {
+            setError(null);
+            const response = await profileAPI.createOrUpdateProfile(updatedProfile);
+
+            if (response.data.profile) {
+                setProfile(response.data.profile);
+            } else {
+                // If no profile returned, reload it
+                await loadProfile();
+            }
+
+            setIsEditMode(false);
+            setViewMode('home');
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            setError('Failed to save profile. Please try again.');
+            throw error; // Re-throw to let EditProfile component handle it
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditMode(false);
+        setViewMode('home');
         setError(null);
     };
 
@@ -145,7 +180,10 @@ function App() {
                                 ) : profile ? (
                                     <>
                                         <TopSkills onSkillClick={handleSkillClick} />
-                                        <ProfileCard profile={profile} />
+                                        <ProfileCard
+                                            profile={profile}
+                                            onEdit={handleEditProfile}
+                                        />
                                     </>
                                 ) : (
                                     <div className="no-profile">
@@ -162,6 +200,15 @@ function App() {
                         )}
                     </div>
                 </main>
+
+                {/* Edit Profile Modal */}
+                {isEditMode && (
+                    <EditProfile
+                        profile={profile}
+                        onSave={handleSaveProfile}
+                        onCancel={handleCancelEdit}
+                    />
+                )}
 
                 <footer className="app-footer">
                     <p>&copy; 2025 Profile Dashboard. Built with React & Vite.</p>

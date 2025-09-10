@@ -5,42 +5,57 @@ const createOrUpdateProfile = async (req, res) => {
     try {
         const { name, email, phone, portfolio, education, skills, projects, experience, languages, links } = req.body;
 
+        // Validate required fields
+        if (!name || !email) {
+            return res.status(400).json({
+                message: 'Name and email are required fields'
+            });
+        }
+
         // Check if profile with this email exists
         let profile = await Profile.findOne({ email });
 
         if (profile) {
-            // Update existing profile
-            profile.name = name;
-            profile.phone = phone || profile.phone;
-            profile.portfolio = portfolio || profile.portfolio;
-            profile.education = education;
-            profile.skills = skills;
-            profile.projects = projects;
-            profile.experience = experience || profile.experience;
-            profile.languages = languages || profile.languages;
-            profile.links = links;
+            // Update existing profile - only update fields that are provided
+            if (name !== undefined) profile.name = name;
+            if (phone !== undefined) profile.phone = phone;
+            if (portfolio !== undefined) profile.portfolio = portfolio;
+            if (education !== undefined) profile.education = education;
+            if (skills !== undefined) profile.skills = skills;
+            if (projects !== undefined) profile.projects = projects;
+            if (experience !== undefined) profile.experience = experience;
+            if (languages !== undefined) profile.languages = languages;
+            if (links !== undefined) profile.links = links;
+
             await profile.save();
+
+            res.status(200).json({
+                message: 'Profile updated successfully',
+                id: profile._id,
+                profile: profile
+            });
         } else {
             // Create new profile
             profile = new Profile({
                 name,
                 email,
-                phone,
-                portfolio,
-                education,
-                skills,
-                projects,
-                experience,
-                languages,
-                links
+                phone: phone || '',
+                portfolio: portfolio || '',
+                education: education || [],
+                skills: skills || [],
+                projects: projects || [],
+                experience: experience || [],
+                languages: languages || [],
+                links: links || {}
             });
             await profile.save();
-        }
 
-        res.status(200).json({
-            message: 'Profile created/updated successfully',
-            id: profile._id
-        });
+            res.status(201).json({
+                message: 'Profile created successfully',
+                id: profile._id,
+                profile: profile
+            });
+        }
     } catch (error) {
         console.error('Error creating/updating profile:', error);
         res.status(500).json({
@@ -63,10 +78,64 @@ const getProfile = async (req, res) => {
             profile = await Profile.findOne().sort({ updatedAt: -1 });
         }
 
+        // If no profile exists, create and return default profile
         if (!profile) {
-            return res.status(404).json({
-                message: 'Profile not found'
-            });
+            const defaultProfile = {
+                name: "Avinash Kumar",
+                email: "thissideavinash@gmail.com",
+                phone: "+91 6239378916",
+                portfolio: "https://myportfolio-delta-vert.vercel.app",
+                education: [
+                    {
+                        degree: "B.Tech CSE",
+                        college: "CT Institute of Engineering, Shahpur (Punjab)",
+                        cgpa: "8 CGPA",
+                        start_year: 2021,
+                        end_year: 2025
+                    }
+                ],
+                skills: [
+                    "React.js", "React Native", "HTML5", "CSS3", "JavaScript",
+                    "Node.js", "Express.js", "MongoDB", "SQL", "LangChain",
+                    "OpenAI/LLM Agents", "Prompt Engineering", "Docker",
+                    "Swagger API", "RESTful APIs", "Postman", "Git", "GitHub",
+                    "Appwrite", "Wix", "WordPress", "Tailwind CSS",
+                    "Material-UI", "Bootstrap", "Chakra UI", "Python"
+                ],
+                projects: [
+                    {
+                        title: "Inventory Store Management System",
+                        description: "Web app for retailers/wholesalers to manage products with unlimited room creation and advanced search. Features include admin dashboard with real-time graphs, action history, and optimized performance using Appwrite indexing and lazy loading.",
+                        timeline: "Jan 2024 – Mar 2025",
+                        skills: ["React.js", "Node.js", "MongoDB", "Appwrite", "Chakra UI"]
+                    },
+                    {
+                        title: "Portfolio Website",
+                        description: "Personal portfolio website showcasing projects and skills with responsive design and modern UI/UX.",
+                        timeline: "Dec 2023 – Jan 2024",
+                        skills: ["React.js", "CSS3", "HTML5", "JavaScript"]
+                    }
+                ],
+                experience: [
+                    {
+                        role: "Full Stack Developer",
+                        company: "Self-employed",
+                        timeline: "2023 - Present",
+                        description: "Developing web applications using modern technologies like React, Node.js, and MongoDB."
+                    }
+                ],
+                languages: ["English", "Hindi"],
+                links: {
+                    github: "https://github.com/avinashh10x",
+                    linkedin: "https://linkedin.com/in/avinash-kumar",
+                    portfolio: "https://myportfolio-delta-vert.vercel.app"
+                }
+            };
+
+            // Create the default profile
+            profile = new Profile(defaultProfile);
+            await profile.save();
+            console.log('Default profile created');
         }
 
         res.status(200).json(profile);

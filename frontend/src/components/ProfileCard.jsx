@@ -1,20 +1,27 @@
 import React from 'react';
 import './ProfileCard.css';
 
-const ProfileCard = ({ profile }) => {
+const ProfileCard = ({ profile, onEdit }) => {
     if (!profile) return null;
 
     return (
         <div className="profile-card fade-in">
             <div className="profile-header">
-                <div className="profile-avatar">
-                    {profile.name.charAt(0).toUpperCase()}
+                <div className="profile-info-section">
+                    <div className="profile-avatar">
+                        {profile.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="profile-info">
+                        <h1 className="profile-name">{profile.name}</h1>
+                        <p className="profile-email">{profile.email}</p>
+                        {profile.phone && <p className="profile-phone">{profile.phone}</p>}
+                    </div>
                 </div>
-                <div className="profile-info">
-                    <h1 className="profile-name">{profile.name}</h1>
-                    <p className="profile-email">{profile.email}</p>
-                    {profile.phone && <p className="profile-phone">{profile.phone}</p>}
-                </div>
+                {onEdit && (
+                    <button onClick={onEdit} className="edit-profile-btn" title="Edit Profile">
+                        ✏️ Edit
+                    </button>
+                )}
             </div>
 
             {profile.portfolio && (
@@ -96,6 +103,19 @@ const ProfileCard = ({ profile }) => {
                             )}
                         </div>
                     ))}
+                </div>
+            )}
+
+            {profile.languages && profile.languages.length > 0 && (
+                <div className="profile-section">
+                    <h3 className="section-title">🌍 Languages</h3>
+                    <div className="languages-container">
+                        {profile.languages.map((language, index) => (
+                            <span key={index} className="language-tag">
+                                {language}
+                            </span>
+                        ))}
+                    </div>
                 </div>
             )}
 
