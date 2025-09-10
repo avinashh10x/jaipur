@@ -12,12 +12,14 @@ const createOrUpdateProfile = async (req, res) => {
             });
         }
 
-        // Check if profile with this email exists
-        let profile = await Profile.findOne({ email });
+        // For single-profile system: Find existing profile or create new one
+        // We'll always update the most recent profile regardless of email changes
+        let profile = await Profile.findOne().sort({ updatedAt: -1 });
 
         if (profile) {
-            // Update existing profile - only update fields that are provided
-            if (name !== undefined) profile.name = name;
+            // Update existing profile - update all provided fields
+            profile.name = name;
+            profile.email = email;
             if (phone !== undefined) profile.phone = phone;
             if (portfolio !== undefined) profile.portfolio = portfolio;
             if (education !== undefined) profile.education = education;
@@ -35,7 +37,7 @@ const createOrUpdateProfile = async (req, res) => {
                 profile: profile
             });
         } else {
-            // Create new profile
+            // Create new profile (this should only happen on first run)
             profile = new Profile({
                 name,
                 email,
@@ -275,8 +277,8 @@ const searchProfiles = async (req, res) => {
 
             // Check education matches
             profile.education.forEach(edu => {
-                if (edu.degree.toLowerCase().includes(q.toLowerCase()) ||
-                    edu.college.toLowerCase().includes(q.toLowerCase())) {
+                if (edu.degree.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    edu.college.toLowerCase().includes(searchTerm.toLowerCase())) {
                     results.push({
                         type: 'education',
                         degree: edu.degree,
@@ -284,7 +286,7 @@ const searchProfiles = async (req, res) => {
                         cgpa: edu.cgpa,
                         start_year: edu.start_year,
                         end_year: edu.end_year,
-                        year: edu.year // backward compatibility
+                        name: profile.name
                     });
                 }
             });
@@ -292,15 +294,16 @@ const searchProfiles = async (req, res) => {
             // Check experience matches
             if (profile.experience) {
                 profile.experience.forEach(exp => {
-                    if (exp.role.toLowerCase().includes(q.toLowerCase()) ||
-                        exp.company.toLowerCase().includes(q.toLowerCase()) ||
-                        exp.description.toLowerCase().includes(q.toLowerCase())) {
+                    if (exp.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        exp.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        exp.description.toLowerCase().includes(searchTerm.toLowerCase())) {
                         results.push({
                             type: 'experience',
                             role: exp.role,
                             company: exp.company,
                             timeline: exp.timeline,
-                            description: exp.description
+                            description: exp.description,
+                            name: profile.name
                         });
                     }
                 });
@@ -308,18 +311,22 @@ const searchProfiles = async (req, res) => {
 
             // Check project matches
             profile.projects.forEach(project => {
-                if (project.title.toLowerCase().includes(q.toLowerCase()) ||
-                    project.description.toLowerCase().includes(q.toLowerCase())) {
+                if (project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    project.description.toLowerCase().includes(searchTerm.toLowerCase())) {
                     results.push({
                         type: 'project',
                         title: project.title,
                         description: project.description,
                         skills: project.skills,
-                        timeline: project.timeline
+                        timeline: project.timeline,
+                        name: profile.name
                     });
                 }
             });
         });
+
+        console.log(`Search results found: ${results.length} items`);
+        console.log('Results summary:', results.map(r => `${r.type}: ${r.name || r.title || r.skill}`));
 
         res.status(200).json(results);
     } catch (error) {

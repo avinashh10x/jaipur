@@ -2,11 +2,14 @@ import React from 'react';
 import './SearchResults.css';
 
 const SearchResults = ({ results, isLoading, query }) => {
+    console.log('🔍 SearchResults received:', { results, isLoading, query });
+
     if (isLoading) {
         return (
             <div className="search-results">
                 <div className="loading">
                     <div className="spinner"></div>
+                    <p>Searching for "{query}"...</p>
                 </div>
             </div>
         );
@@ -17,12 +20,14 @@ const SearchResults = ({ results, isLoading, query }) => {
             <div className="search-results">
                 <div className="no-results">
                     <div className="no-results-icon">🔍</div>
-                    <h3>No results found</h3>
+                    <h3>No results found for "{query}"</h3>
                     <p>Try searching for different keywords or check your spelling.</p>
                 </div>
             </div>
         );
     }
+
+    console.log('📊 Displaying search results:', results.length, 'items');
 
     const groupedResults = results.reduce((acc, result) => {
         if (!acc[result.type]) {
@@ -38,6 +43,7 @@ const SearchResults = ({ results, isLoading, query }) => {
             case 'project': return '🚀';
             case 'education': return '🎓';
             case 'experience': return '💼';
+            case 'skill': return '🛠️';
             default: return '📄';
         }
     };
@@ -48,6 +54,7 @@ const SearchResults = ({ results, isLoading, query }) => {
             case 'project': return 'Projects';
             case 'education': return 'Education';
             case 'experience': return 'Experience';
+            case 'skill': return 'Skills';
             default: return 'Other';
         }
     };
@@ -91,6 +98,9 @@ const SearchResults = ({ results, isLoading, query }) => {
                                         {result.timeline && (
                                             <p className="result-timeline">⏱️ {result.timeline}</p>
                                         )}
+                                        {result.name && (
+                                            <p className="result-person">👤 {result.name}</p>
+                                        )}
                                         {result.skills && result.skills.length > 0 && (
                                             <div className="result-skills">
                                                 {result.skills.slice(0, 5).map((skill, skillIndex) => (
@@ -118,6 +128,9 @@ const SearchResults = ({ results, isLoading, query }) => {
                                                 {result.start_year} - {result.end_year}
                                             </span>
                                         </div>
+                                        {result.name && (
+                                            <p className="result-person">👤 {result.name}</p>
+                                        )}
                                     </div>
                                 )}
 
@@ -128,6 +141,19 @@ const SearchResults = ({ results, isLoading, query }) => {
                                         <p className="result-timeline">⏱️ {result.timeline}</p>
                                         {result.description && (
                                             <p className="result-description">{result.description}</p>
+                                        )}
+                                        {result.name && (
+                                            <p className="result-person">👤 {result.name}</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {result.type === 'skill' && (
+                                    <div className="result-content">
+                                        <h4 className="result-title">{result.skill}</h4>
+                                        <p className="result-subtitle">Skill found in profile</p>
+                                        {result.name && (
+                                            <p className="result-person">👤 {result.name}</p>
                                         )}
                                     </div>
                                 )}

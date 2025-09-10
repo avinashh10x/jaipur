@@ -5,7 +5,6 @@ import SearchResults from './components/SearchResults';
 import TopSkills from './components/TopSkills';
 import ProjectsBySkill from './components/ProjectsBySkill';
 import EditProfile from './components/EditProfile';
-import APITester from './components/APITester';
 import { profileAPI } from './services/api';
 import './App.css';
 
@@ -23,18 +22,7 @@ function App() {
     // Load profile data on component mount
     useEffect(() => {
         loadProfile();
-        checkServerHealth();
     }, []);
-
-    const checkServerHealth = async () => {
-        try {
-            await profileAPI.healthCheck();
-            console.log('Server health check passed');
-        } catch (error) {
-            console.error('Server health check failed:', error);
-            setError('Backend server is not responding. Please check your connection.');
-        }
-    };
 
     const loadProfile = async () => {
         try {
@@ -62,34 +50,19 @@ function App() {
             setViewMode('search');
             setError(null);
 
-            console.log('Starting search for:', query);
+            console.log('🔍 Starting search for:', query);
             const response = await profileAPI.searchProfiles(query);
-            console.log('Search response:', response.data);
+            console.log('📋 Search results received:', response.data);
+
             setSearchResults(response.data);
         } catch (error) {
-            console.error('Error searching:', error);
-            let errorMessage = 'Search failed. ';
-
-            if (error.code === 'ECONNABORTED') {
-                errorMessage += 'Request timed out. Please try again.';
-            } else if (error.response?.status === 404) {
-                errorMessage += 'Search endpoint not found.';
-            } else if (error.response?.status >= 500) {
-                errorMessage += 'Server error. Please try again later.';
-            } else if (error.message.includes('Network Error')) {
-                errorMessage += 'Network error. Check your connection.';
-            } else {
-                errorMessage += 'Please try again.';
-            }
-
-            setError(errorMessage);
+            console.error('❌ Search failed:', error);
+            setError(`Search failed: ${error.message}`);
             setSearchResults([]);
         } finally {
             setIsSearching(false);
         }
-    };
-
-    const handleClearSearch = () => {
+    }; const handleClearSearch = () => {
         setViewMode('home');
         setSearchResults(null);
         setSearchQuery('');
@@ -146,9 +119,6 @@ function App() {
 
     return (
         <div className="app">
-            {/* API Tester - Remove this in production */}
-            <APITester />
-
             <div className="app-container">
                 <header className="app-header">
                     <div className="header-content">

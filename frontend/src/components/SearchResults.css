@@ -191,6 +191,16 @@
     font-weight: 600;
 }
 
+.result-person {
+    font-size: 13px;
+    color: #667eea;
+    margin: 8px 0 0 0;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 @media (max-width: 768px) {
     .results-grid {
         grid-template-columns: 1fr;
