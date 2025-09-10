@@ -9,8 +9,15 @@ const profileRoutes = require('./routes/profileRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
-connectDB();
+// Start server first, then try to connect to MongoDB
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+    console.log(`📍 Server URL: http://localhost:${PORT}`);
+
+    // Try to connect to MongoDB after server starts
+    connectDB();
+});
 
 // Middleware
 app.use(cors({
@@ -66,12 +73,6 @@ app.use((req, res) => {
     res.status(404).json({
         message: 'Route not found'
     });
-});
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
 });
 
 module.exports = app;
