@@ -223,13 +223,16 @@ const searchProfiles = async (req, res) => {
     try {
         const { q } = req.query;
 
-        if (!q) {
+        if (!q || q.trim() === '') {
             return res.status(400).json({
                 message: 'Search query parameter is required'
             });
         }
 
-        const searchRegex = new RegExp(q, 'i');
+        const searchTerm = q.trim();
+        const searchRegex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
+        console.log(`Search query: "${searchTerm}"`);
 
         const profiles = await Profile.find({
             $or: [
@@ -240,19 +243,33 @@ const searchProfiles = async (req, res) => {
                 { 'projects.description': searchRegex },
                 { 'experience.role': searchRegex },
                 { 'experience.company': searchRegex },
-                { 'experience.description': searchRegex }
+                { 'experience.description': searchRegex },
+                { skills: searchRegex }
             ]
         });
+
+        console.log(`Found ${profiles.length} profiles matching search`);
 
         let results = [];
 
         profiles.forEach(profile => {
             // Check name match
-            if (profile.name.toLowerCase().includes(q.toLowerCase())) {
+            if (profile.name.toLowerCase().includes(searchTerm.toLowerCase())) {
                 results.push({
                     type: 'profile',
                     name: profile.name,
                     email: profile.email
+                });
+            }
+
+            // Check skills match
+            if (profile.skills && profile.skills.some(skill =>
+                skill.toLowerCase().includes(searchTerm.toLowerCase()))) {
+                results.push({
+                    type: 'skill',
+                    skill: profile.skills.find(skill =>
+                        skill.toLowerCase().includes(searchTerm.toLowerCase())),
+                    name: profile.name
                 });
             }
 
