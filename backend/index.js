@@ -9,18 +9,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production'
-        ? [
-            'https://jaipur-frontend.vercel.app',
-            'https://jaipur-frontend.netlify.app',
-            'https://your-frontend-domain.com'
-        ]
-        : [
-            'http://localhost:3000',
-            'http://localhost:5173',
-            'http://127.0.0.1:3000',
-            'http://127.0.0.1:5173'
-        ],
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -47,6 +36,8 @@ app.get('/health', (req, res) => {
         version: process.env.npm_package_version || '1.0.0'
     });
 });
+
+connectDB()
 
 // API routes
 app.use('/api', profileRoutes);
@@ -88,41 +79,7 @@ app.use((req, res) => {
 // Server startup
 const PORT = process.env.PORT || 5000;
 
-async function startServer() {
-    try {
-        console.log('🚀 Starting Profile Manager API...');
-        console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
-        console.log('📡 Port:', PORT);
+app.listen((req,res)=>{
+    console.log(`✅ Server running on port ${PORT}`)
+})
 
-        // Connect to database
-        await connectDB();
-
-        // Start server
-        const server = app.listen(PORT, '0.0.0.0', () => {
-            console.log(`✅ Server running on port ${PORT}`);
-            console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-            console.log(`📚 API docs: http://localhost:${PORT}/`);
-        });
-
-        // Graceful shutdown
-        process.on('SIGTERM', () => {
-            console.log('🛑 SIGTERM received. Shutting down gracefully...');
-            server.close(() => {
-                console.log('✅ Server closed');
-                process.exit(0);
-            });
-        });
-
-    } catch (error) {
-        console.error('🚨 Failed to start server:', error.message);
-        process.exit(1);
-    }
-}
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-    console.error('🚨 Unhandled Promise Rejection:', err.message);
-    process.exit(1);
-});
-
-startServer();
