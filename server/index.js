@@ -9,7 +9,8 @@ const app = express();
 // Middleware
 app.use(cors(
     origin='*',
-));                     // default CORS, allow all origins
+));        
+             // default CORS, allow all origins
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
